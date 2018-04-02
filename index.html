@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <canvas id="myCanvas" width="600" height="400" style="padding : 2px; border:1px solid #000000;"></canvas> 
+    <script>
+            var c = document.getElementById("myCanvas");
+            var width = $('#myCanvas').width();
+            var height = $('#myCanvas').height();
+            var ctx = c.getContext("2d");
+            var barHeight = 80;
+            var barWidth = 5;
+
+            var ballSize = 8;
+            var ballPosX = width/2;
+            var ballPosY = height/2;
+            var ballSpeed = 5;
+            var dirX = (Math.random()<0.5) ? 1 : -1;
+            var dirY = (Math.random()<0.5) ? 1 : -1;
+
+            var isPlaying = 0;
+            var intervalSpeed = 20;
+
+            var playerYTop = (height/2) - (barHeight/2);
+            var playerScore = 0;
+
+            var compiYTop = playerYTop;
+            var compiScore = 0;
+
+            var interval = setInterval(redraw, intervalSpeed);
+
+            $("#myCanvas").mousemove(function(e){
+            playerYTop = e.pageY - $(this).offset().top;
+            });
+            $("#myCanvas").click(function(){
+            if (playerScore == 3 || compiScore == 3){
+                playerScore = 0;
+                compiScore = 0;
+            }
+            isPlaying = !isPlaying;
+            });
+
+            function redraw(){
+            ctx.beginPath();
+            ctx.fillStyle="#bbb";
+            ctx.fillRect(0,0,width,height); 
+            // PLAYER
+            ctx.fillStyle="#008800";
+            ctx.fillRect(0,playerYTop,barWidth,barHeight ); 
+
+            // COMPI
+            ctx.fillStyle="#cc0000";
+            ctx.fillRect(width - barWidth,compiYTop,barWidth,barHeight );
+
+            ctx.font = "15px Arial";
+            ctx.fillStyle="#008800";
+            ctx.fillText(playerScore,30,50);
+            ctx.fillStyle="#cc0000";
+            ctx.fillText(compiScore,width-30,50);
+            ctx.fillStyle="#fff";
+            
+            if (isPlaying){
+
+                compiYTop = compiYTop + dirY * ballSpeed /1.65;
+
+                if (ballPosX<0){
+                if (ballPosY > playerYTop && ballPosY < playerYTop + barHeight  )
+                    dirX *= -1;
+                    else {
+                    compiScore++;
+                    isPlaying=false;
+                    ballPosX = width/2;
+                    ballPosY = height/2;
+                    dirX = (Math.random()<0.5) ? 1 : -1;
+                    dirY = (Math.random()<0.5) ? 1 : -1;
+                }
+                }
+
+                if (ballPosX>width){
+                if (ballPosY > compiYTop && ballPosY < compiYTop + barHeight  )
+                    dirX *= -1;
+                else {
+                    playerScore++;
+                    isPlaying=false;
+                    ballPosX = width/2;
+                    ballPosY = height/2;
+                    dirX = (Math.random()<0.5) ? 1 : -1;
+                    dirY = (Math.random()<0.5) ? 1 : -1;
+                }
+                }
+
+                if (ballPosY<0)
+                dirY *= -1;
+
+                if (ballPosY>height)
+                dirY *= -1;
+
+                ballPosX = ballPosX + ballSpeed * dirX;
+                ballPosY = ballPosY + ballSpeed * dirY;
+
+                ctx.arc(ballPosX,ballPosY,ballSize,0,2*Math.PI);
+                ctx.fill();
+                if (playerScore == 3 || compiScore == 3)
+                isPlaying=false;
+            }
+            else{
+                ctx.beginPath();
+                ctx.fillStyle="#fff";
+                ctx.arc(ballPosX,ballPosY,ballSize,0,2*Math.PI);
+                ctx.fill();
+                ctx.font = "20px Arial";
+                if (playerScore == 0 && compiScore == 0){
+                var text = 'Click to begin or resume';
+                var text_width = ctx.measureText(text).width;
+                ctx.fillStyle="#008800";
+                ctx.fillText(text,(width-text_width)/2,50);      
+                }
+                if (playerScore == 3){
+                var text = 'YOU WIN';
+                var text_width = ctx.measureText(text).width;
+                ctx.fillStyle="#008800";
+                ctx.fillText(text,width/2,50);
+                }
+                if (compiScore == 3){
+                var text = 'YOU LOSE';
+                var text_width = ctx.measureText(text).width;
+                ctx.fillStyle="#cc0000";
+                ctx.fillText(text,width/2,50);
+                }
+            }
+            }
+    </script>
+</body>
+</html>
